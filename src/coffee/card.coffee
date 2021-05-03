@@ -90,6 +90,7 @@ class Card
       name: 'Full Name'
     masks:
       cardNumber: false
+      cardCVC: false
     classes:
       valid: 'jp-card-valid'
       invalid: 'jp-card-invalid'
@@ -161,6 +162,9 @@ class Card
   attachHandlers: ->
     numberInputFilters = [@validToggler('cardNumber')]
     numberInputFilters.push(@maskCardNumber) if @options.masks.cardNumber
+    
+    cvcInputFilters= [@validToggler('cardCVC')];
+    cvcInputFilters.push(@maskCVC) if @options.masks.cardCVC
 
     bindVal @$numberInput, @$numberDisplay,
       fill: false,
@@ -175,7 +179,7 @@ class Card
           if text[0].length == 2 or text[1] then "/" else ""
         filters: expiryFilters
 
-    bindVal @$cvcInput, @$cvcDisplay, filters: @validToggler('cardCVC')
+    bindVal @$cvcInput, @$cvcDisplay, filters: cvcInputFilters
     QJ.on @$cvcInput, 'focus', @handle('flipCard')
     QJ.on @$cvcInput, 'blur', @handle('unflipCard')
 
@@ -230,6 +234,18 @@ class Card
       numbers.forEach (item, idx) ->
         numbers[idx] = numbers[idx].replace(/\d/g, mask) unless idx == numbers.length - 1
       numbers.join(' ')
+
+    else
+      val.replace /\d/g, mask
+
+  maskCVC: (val, el, out) =>
+    mask = @options.masks.cardCVC
+    numbers = val.split('')
+
+    if numbers.length
+      numbers.forEach (item, idx) ->
+        numbers[idx] = numbers[idx].replace(/\d/g, mask)
+      numbers.join('')
 
     else
       val.replace /\d/g, mask
